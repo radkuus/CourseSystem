@@ -1,0 +1,57 @@
+services:
+  coursesystem-app:
+    build:
+      context: .
+      dockerfile: CourseSystem.App/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - coursesystem-db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=coursesystem-db;Database=CourseSystemDb;Username=courseuser;Password=coursepass123
+    volumes:
+      - course_data:/app/data/courses
+    networks:
+      - coursesystem-network
+    develop:
+      watch:
+        - action: rebuild
+          path: ./CourseSystem.App
+          target: /app
+        - action: sync
+          path: ./CourseSystem.App/wwwroot
+          target: /app/wwwroot
+
+  coursesystem-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=CourseSystemDb
+      - POSTGRES_USER=courseuser
+      - POSTGRES_PASSWORD=coursepass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - coursesystem-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - coursesystem-db
+    networks:
+      - coursesystem-network
+
+volumes:
+  postgres_data:
+  course_data:
+
+networks:
+  coursesystem-network:
+    driver: bridge
