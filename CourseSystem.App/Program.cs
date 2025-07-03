@@ -1,6 +1,9 @@
 ﻿using CourseSystem.App.Components;
+using CourseSystem.App.Endpoints;
 using CourseSystem.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +15,35 @@ builder.Services.AddRazorComponents()
 // Konfiguracja serwisów
 builder.Services.AddDbContext<CourseSystemDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Authentication & Authorization
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/access-denied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.SlidingExpiration = true;
+        options.Cookie.Name = "CourseSystemAuth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    });
+
+builder.Services.AddAuthorization();
+
+// Session support
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = "CourseSystemSession";
+});
+
+// Add HttpClient for Blazor components
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -42,7 +74,20 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// middleware w odpowiedniej kolejności
+app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
+
+
 app.UseAntiforgery();
+
+// Auth API endpoints
+app.MapPost("/api/auth/login", AuthEndpoints.LoginEndpoint);
+app.MapPost("/api/auth/register", AuthEndpoints.RegisterEndpoint);
+app.MapPost("/api/auth/logout", AuthEndpoints.LogoutEndpoint);
+app.MapGet("/api/auth/check", AuthEndpoints.CheckAuthEndpoint);
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
