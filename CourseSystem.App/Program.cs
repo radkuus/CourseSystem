@@ -89,6 +89,13 @@ app.MapPost("/api/auth/register", AuthEndpoints.RegisterEndpoint);
 app.MapPost("/api/auth/logout", AuthEndpoints.LogoutEndpoint);
 app.MapGet("/api/auth/check", AuthEndpoints.CheckAuthEndpoint);
 
+// Course API endpoints
+app.MapPost("/api/courses", CourseEndpoints.CreateCourseEndpoint).RequireAuthorization();
+app.MapPut("/api/courses/{id}", CourseEndpoints.UpdateCourseEndpoint).RequireAuthorization();
+app.MapDelete("/api/courses/{id}", CourseEndpoints.DeleteCourseEndpoint).RequireAuthorization();
+app.MapGet("/api/courses", CourseEndpoints.GetCoursesEndpoint).RequireAuthorization();
+app.MapGet("/api/courses/{id}", CourseEndpoints.GetCourseByIdEndpoint).RequireAuthorization();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
