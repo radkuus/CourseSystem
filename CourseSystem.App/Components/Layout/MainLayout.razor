@@ -38,7 +38,7 @@
     {
         await AuthService.LogoutAsync();
 
-        // Użyj JavaScript do pełnego przeładowania
-        await JSRuntime.InvokeVoidAsync("eval", "window.location.href = '/'; window.location.reload(true);");
+        // Przekieruj do strony logowania z wymuszeniem przeładowania
+        Navigation.NavigateTo("/login", forceLoad: true);
     }
 }

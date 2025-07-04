@@ -146,15 +146,19 @@ public static class AuthEndpoints
             httpContext.Session?.Clear();
 
             // Dodaj nagłówki do wymuszenia braku cache
-            httpContext.Response.Headers["Cache-Control"] = "no-cache, no-store";
+            httpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
             httpContext.Response.Headers["Pragma"] = "no-cache";
+            httpContext.Response.Headers["Expires"] = "0";
 
-            // Zawsze przekieruj na stronę logowania
-            return Results.Redirect("/login");
+            // Zwróć sukces zamiast przekierowania
+            return Results.Ok(new { message = "Wylogowano pomyślnie" });
         }
-        catch
+        catch (Exception ex)
         {
-            return Results.Redirect("/login");
+            return Results.Problem(
+                detail: $"Błąd podczas wylogowywania: {ex.Message}",
+                statusCode: 500
+            );
         }
     }
 

@@ -127,30 +127,18 @@ namespace CourseSystem.App.Services
             }
         }
 
-        public async Task<bool> LogoutAsync()
+        public async Task LogoutAsync()
         {
-            try
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
             {
-                var httpContext = _httpContextAccessor.HttpContext;
-                if (httpContext != null)
-                {
-                    // Wykonaj request do endpointu wylogowania
-                    using var client = new HttpClient();
-                    var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                httpContext.Session?.Clear();
 
-                    // Dodaj ciasteczka do requestu
-                    client.DefaultRequestHeaders.Add("Cookie", httpContext.Request.Headers["Cookie"].ToString());
-
-                    var response = await client.PostAsync($"{baseUrl}/api/auth/logout", null);
-
-                    return response.IsSuccessStatusCode;
-                }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Błąd w LogoutAsync: {ex.Message}");
-                return false;
+                // Dodaj nagłówki do wymuszenia braku cache
+                httpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                httpContext.Response.Headers["Pragma"] = "no-cache";
+                httpContext.Response.Headers["Expires"] = "0";
             }
         }
 
