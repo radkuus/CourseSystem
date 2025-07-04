@@ -42,13 +42,6 @@
                             <ValidationMessage For="() => _loginModel.Password" />
                         </div>
 
-                        <div class="mb-3 form-check">
-                            <InputCheckbox id="rememberMe" class="form-check-input"
-                                           @bind-Value="_loginModel.RememberMe" />
-                            <label class="form-check-label" for="rememberMe">
-                                Zapamiętaj mnie
-                            </label>
-                        </div>
 
                         <button type="submit" class="btn btn-primary w-100" disabled="@_isLoading">
                             @if (_isLoading)

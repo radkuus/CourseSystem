@@ -1,0 +1,219 @@
+﻿@page "/teacher/student-assignments"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Zadania Studentów - Panel Nauczyciela</PageTitle>
+
+@if (AuthState?.User != null)
+{
+    <div class="container mt-4">
+        <h1>Zadania Studentów</h1>
+        <p class="lead">Sprawdź i oceń zadania przesłane przez studentów</p>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Filtry</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Kurs</label>
+                                <select class="form-select">
+                                    <option>Wszystkie kursy</option>
+                                    <option>Programowanie Obiektowe</option>
+                                    <option>Bazy Danych</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Zadanie</label>
+                                <select class="form-select">
+                                    <option>Wszystkie zadania</option>
+                                    <option>Projekt semestralny</option>
+                                    <option>Zadanie 3 - Normalizacja</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select">
+                                    <option>Wszystkie</option>
+                                    <option>Do oceny</option>
+                                    <option>Ocenione</option>
+                                    <option>Spóźnione</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Student</label>
+                                <input type="text" class="form-control" placeholder="Imię lub nazwisko...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">Do oceny <span class="badge bg-danger">12</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Ocenione <span class="badge bg-secondary">45</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Wszystkie <span class="badge bg-secondary">57</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Kurs</th>
+                                        <th>Zadanie</th>
+                                        <th>Data przesłania</th>
+                                        <th>Termin</th>
+                                        <th>Status</th>
+                                        <th>Ocena</th>
+                                        <th>Akcje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong>Jan Kowalski</strong>
+                                            <br />
+                                            <small class="text-muted">jan.kowalski@student.pl</small>
+                                        </td>
+                                        <td>Programowanie Obiektowe</td>
+                                        <td>Projekt semestralny</td>
+                                        <td>
+                                            2025-01-03
+                                            <br />
+                                            <small class="text-muted">14:32</small>
+                                        </td>
+                                        <td>2025-01-15</td>
+                                        <td><span class="badge bg-warning">Do oceny</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-primary">Oceń</button>
+                                                <button class="btn btn-secondary">Pobierz</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Anna Nowak</strong>
+                                            <br />
+                                            <small class="text-muted">anna.nowak@student.pl</small>
+                                        </td>
+                                        <td>Bazy Danych</td>
+                                        <td>Zadanie 3 - Normalizacja</td>
+                                        <td>
+                                            2025-01-02
+                                            <br />
+                                            <small class="text-muted">23:45</small>
+                                        </td>
+                                        <td>2025-01-10</td>
+                                        <td><span class="badge bg-warning">Do oceny</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-primary">Oceń</button>
+                                                <button class="btn btn-secondary">Pobierz</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-danger">
+                                        <td>
+                                            <strong>Piotr Wiśniewski</strong>
+                                            <br />
+                                            <small class="text-muted">piotr.wisniewski@student.pl</small>
+                                        </td>
+                                        <td>Programowanie Obiektowe</td>
+                                        <td>Zadanie 2 - Dziedziczenie</td>
+                                        <td>
+                                            2024-12-22
+                                            <br />
+                                            <small class="text-muted">16:20</small>
+                                        </td>
+                                        <td>2024-12-20</td>
+                                        <td>
+                                            <span class="badge bg-danger">Spóźnione</span>
+                                            <br />
+                                            <small>2 dni</small>
+                                        </td>
+                                        <td>-</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-primary">Oceń</button>
+                                                <button class="btn btn-secondary">Pobierz</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-success">
+                                        <td>
+                                            <strong>Maria Zielińska</strong>
+                                            <br />
+                                            <small class="text-muted">maria.zielinska@student.pl</small>
+                                        </td>
+                                        <td>Bazy Danych</td>
+                                        <td>Zadanie 2 - Zapytania SQL</td>
+                                        <td>
+                                            2024-12-18
+                                            <br />
+                                            <small class="text-muted">10:15</small>
+                                        </td>
+                                        <td>2024-12-20</td>
+                                        <td><span class="badge bg-success">Ocenione</span></td>
+                                        <td><strong>4.5</strong></td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary">Edytuj ocenę</button>
+                                                <button class="btn btn-secondary">Pobierz</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @* Paginacja *@
+                        <nav aria-label="Nawigacja po stronach">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Poprzednia</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Następna</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Sprawdź czy użytkownik ma odpowiednią rolę
+        if (AuthState?.User?.Role.ToLower() != "teacher")
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}

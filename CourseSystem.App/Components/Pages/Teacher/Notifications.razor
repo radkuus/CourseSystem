@@ -1,0 +1,179 @@
+﻿@page "/teacher/notifications"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Powiadomienia - Panel Nauczyciela</PageTitle>
+
+@if (AuthState?.User != null)
+{
+    <div class="container mt-4">
+
+
+        <div class="row">
+            <div class="col-md-3">
+                @* Panel filtrów *@
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Filtry</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="newSubmissions" checked>
+                            <label class="form-check-label" for="newSubmissions">
+                                Nowe zadania
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="enrollments" checked>
+                            <label class="form-check-label" for="enrollments">
+                                Zapisy na kursy
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="system" checked>
+                            <label class="form-check-label" for="system">
+                                Systemowe
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-md-9">
+                @* Lista powiadomień *@
+                <div class="list-group">
+                    @* Nowe zadanie - nieprzeczytane *@
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-primary me-2">Nowe zadanie</span>
+                                    <h6 class="mb-0">Jan Kowalski przesłał rozwiązanie</h6>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    Student <strong>Jan Kowalski</strong> przesłał rozwiązanie zadania
+                                    <strong>"Projekt semestralny"</strong> w kursie <strong>Programowanie Obiektowe</strong>.
+                                </p>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> 15 minut temu • Kurs: Programowanie Obiektowe
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn btn-sm btn-outline-primary">Sprawdź</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Nowy student zapisał się *@
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-success me-2">Nowy zapis</span>
+                                    <h6 class="mb-0">Nowy student zapisał się na kurs</h6>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    Student <strong>Anna Nowak</strong> zapisał się na kurs
+                                    <strong>Bazy Danych</strong>. Oczekuje na akceptację.
+                                </p>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> 1 godzinę temu • Kurs: Bazy Danych
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn btn-sm btn-success">Akceptuj</button>
+                                <button class="btn btn-sm btn-outline-danger">Odrzuć</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Deadline się zbliża *@
+                    <div class="list-group-item list-group-item-action list-group-item-light">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-warning me-2">Uwaga</span>
+                                    <h6 class="mb-0">Student nie oddał zadania w terminie</h6>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    Student <strong>Bożena Kowalczyk</strong> nie oddała zadania z kursu
+                                    <strong>Podstawy programowania w C#</strong> w wyznaczonym czasie.
+                                </p>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> 3 godziny temu • Systemowe
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn btn-sm btn-outline-primary">Sprawdź</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Spóźnione zadanie *@
+                    <div class="list-group-item list-group-item-action list-group-item-light">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-danger me-2">Spóźnione</span>
+                                    <h6 class="mb-0">Spóźnione przesłanie zadania</h6>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    Student <strong>Maria Zielińska</strong> przesłał zadanie
+                                    <strong>"Zadanie 2 - Dziedziczenie"</strong> 2 dni po terminie.
+                                </p>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> Wczoraj, 16:45 • Kurs: Programowanie Obiektowe
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn btn-sm btn-outline-primary">Sprawdź</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                @* Paginacja *@
+                <nav aria-label="Nawigacja po powiadomieniach" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Poprzednia</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Następna</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Sprawdź czy użytkownik ma odpowiednią rolę
+        if (AuthState?.User?.Role.ToLower() != "teacher")
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}
+
+<style>
+    .bi-clock::before {
+        content: "🕐 ";
+    }
+
+    .bi-check-all::before {
+        content: "✓✓ ";
+    }
+</style>

@@ -9,6 +9,7 @@
     </div>
 </div>
 
+
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenuCollapsed">
     <nav class="flex-column">
         @if (AuthState?.IsAuthenticated == true)
@@ -46,12 +47,17 @@
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/teacher/courses">
-                        <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Zarządzaj kursami
+                        <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Moje kursy
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/teacher/students">
-                        <span class="bi bi-people-nav-menu" aria-hidden="true"></span> Studenci
+                    <NavLink class="nav-link" href="/teacher/student-assignments">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Zadania studentów
+                    </NavLink>
+                </div>
+                                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/teacher/notifications">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Powiadomienia
                     </NavLink>
                 </div>
             }
