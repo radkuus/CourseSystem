@@ -1,4 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using CourseSystem.App.Services
+@using CourseSystem.App.Models
+@using CourseSystem.App.Components.Auth
+@inherits LayoutComponentBase
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
 
 <div class="page">
     <div class="sidebar">
@@ -7,7 +12,15 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            @if (AuthState?.IsAuthenticated == true && AuthState.User != null)
+            {
+                <span class="me-3">@AuthState.User.FirstName @AuthState.User.LastName</span>
+                <button class="btn btn-link" @onclick="Logout">Wyloguj</button>
+            }
+            else
+            {
+                <a href="/login">Zaloguj się</a>
+            }
         </div>
 
         <article class="content px-4">
@@ -16,8 +29,22 @@
     </main>
 </div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    private async Task Logout()
+    {
+        try
+        {
+            await AuthService.LogoutAsync();
+            // Wymuszamy pełne przeładowanie strony
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd podczas wylogowania: {ex.Message}");
+            // Nawet jeśli wystąpi błąd, przekieruj
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+    }
+}

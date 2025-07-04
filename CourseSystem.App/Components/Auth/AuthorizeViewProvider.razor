@@ -1,0 +1,50 @@
+﻿@using CourseSystem.App.Services
+@using CourseSystem.App.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@implements IDisposable
+@inject AuthenticationService AuthService
+
+<CascadingValue Value="@_authState">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private AuthState _authState = new();
+    private Timer? _timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CheckAuth();
+        // Sprawdzaj autoryzację co 30 sekund
+        _timer = new Timer(_ => CheckAuth(), null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    private void CheckAuth()
+    {
+        try
+        {
+            var result = AuthService.CheckAuth();
+            _authState.IsAuthenticated = result.IsAuthenticated;
+            _authState.User = result.User;
+            InvokeAsync(StateHasChanged);
+        }
+        catch
+        {
+            _authState.IsAuthenticated = false;
+            _authState.User = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
+    public class AuthState
+    {
+        public bool IsAuthenticated { get; set; }
+        public UserInfo? User { get; set; }
+    }
+}

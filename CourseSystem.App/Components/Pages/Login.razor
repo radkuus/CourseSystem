@@ -1,0 +1,140 @@
+﻿@page "/"
+@page "/login"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using System.ComponentModel.DataAnnotations
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+
+
+<PageTitle>Logowanie - System Kursów</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Logowanie</h2>
+
+                    @if (!string.IsNullOrEmpty(_errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @_errorMessage
+                            <button type="button" class="btn-close" @onclick="() => _errorMessage = string.Empty"></button>
+                        </div>
+                    }
+
+                    <EditForm Model="_loginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <InputText id="email" class="form-control" @bind-Value="_loginModel.Email"
+                                       placeholder="nazwa@email.com" />
+                            <ValidationMessage For="() => _loginModel.Email" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Hasło</label>
+                            <InputText id="password" type="password" class="form-control"
+                                       @bind-Value="_loginModel.Password" placeholder="Hasło" />
+                            <ValidationMessage For="() => _loginModel.Password" />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <InputCheckbox id="rememberMe" class="form-check-input"
+                                           @bind-Value="_loginModel.RememberMe" />
+                            <label class="form-check-label" for="rememberMe">
+                                Zapamiętaj mnie
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" disabled="@_isLoading">
+                            @if (_isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            Zaloguj się
+                        </button>
+                    </EditForm>
+
+                    <hr class="my-4" />
+
+                    <p class="text-center mb-0">
+                        Nie masz konta?
+                        <a href="/register" class="text-decoration-none">Zarejestruj się</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    [SupplyParameterFromForm]
+    private LoginModel _loginModel { get; set; } = new();
+
+    private string _errorMessage = string.Empty;
+    private bool _isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Jeśli użytkownik jest już zalogowany, przekieruj do odpowiedniego panelu
+        if (AuthState?.IsAuthenticated == true && AuthState.User != null)
+        {
+            Navigation.NavigateTo(AuthState.User.Role.ToLower() == "teacher"
+                ? "/teacher/dashboard"
+                : "/student/dashboard");
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        _isLoading = true;
+        _errorMessage = string.Empty;
+
+        try
+        {
+            var result = await AuthService.LoginAsync(
+                _loginModel.Email,
+                _loginModel.Password,
+                _loginModel.RememberMe
+            );
+
+            if (result.Success && result.User != null)
+            {
+                // Przekieruj do odpowiedniego dashboardu
+                Navigation.NavigateTo(result.User.Role.ToLower() == "teacher"
+                    ? "/teacher/dashboard"
+                    : "/student/dashboard", true);
+            }
+            else
+            {
+                _errorMessage = result.ErrorMessage ?? "Błąd logowania";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Wystąpił błąd: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email jest wymagany")]
+        [EmailAddress(ErrorMessage = "Nieprawidłowy format email")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; }
+    }
+}

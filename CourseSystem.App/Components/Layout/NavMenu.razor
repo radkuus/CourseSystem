@@ -1,30 +1,80 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using CourseSystem.App.Components.Auth
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">CourseSystem.App</a>
+        <a class="navbar-brand" href="">System Kursów</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenuCollapsed">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenuCollapsed">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+        @if (AuthState?.IsAuthenticated == true)
+        {
+            @if (AuthState.User?.Role.ToLower() == "student")
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/student/dashboard">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/student/courses">
+                        <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Moje kursy
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/student/assignments">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Zadania
+                    </NavLink>
+                </div>
+            }
+            else if (AuthState.User?.Role.ToLower() == "teacher")
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/teacher/dashboard">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/teacher/courses">
+                        <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Zarządzaj kursami
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/teacher/students">
+                        <span class="bi bi-people-nav-menu" aria-hidden="true"></span> Studenci
+                    </NavLink>
+                </div>
+            }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/profile">
+                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Profil
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenuCollapsed()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
+
+<style>
+    .bi-house-door-fill-nav-menu::before { content: "🏠 "; }
+    .bi-book-nav-menu::before { content: "📚 "; }
+    .bi-list-nested-nav-menu::before { content: "📋 "; }
+    .bi-people-nav-menu::before { content: "👥 "; }
+    .bi-person-nav-menu::before { content: "👤 "; }
+</style>

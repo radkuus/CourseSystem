@@ -1,0 +1,62 @@
+﻿@page "/teacher/dashboard"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Panel Nauczyciela</PageTitle>
+
+@if (AuthState?.User != null)
+{
+    <div class="container mt-4">
+        <h1>Witaj, @AuthState.User.FirstName @AuthState.User.LastName!</h1>
+        <p class="lead">Panel nauczyciela</p>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Moje kursy</h5>
+                        <p class="card-text">Zarządzaj swoimi kursami.</p>
+                        <a href="/teacher/courses" class="btn btn-primary">Zarządzaj kursami</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Studenci</h5>
+                        <p class="card-text">Zobacz listę swoich studentów.</p>
+                        <a href="/teacher/students" class="btn btn-primary">Lista studentów</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Zadania</h5>
+                        <p class="card-text">Twórz i oceniaj zadania.</p>
+                        <a href="/teacher/assignments" class="btn btn-primary">Zarządzaj zadaniami</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Sprawdź czy użytkownik ma odpowiednią rolę
+        if (AuthState?.User?.Role.ToLower() != "teacher")
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}

@@ -1,10 +1,9 @@
 ﻿using CourseSystem.App.Components;
 using CourseSystem.App.Endpoints;
+using CourseSystem.App.Services;
 using CourseSystem.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,8 +41,11 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = "CourseSystemSession";
 });
 
-// Add HttpClient for Blazor components
-builder.Services.AddHttpClient();
+// Add HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
+// Add AuthenticationService
+builder.Services.AddScoped<AuthenticationService>();
 
 var app = builder.Build();
 
@@ -57,29 +59,24 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        // Log błąd migracji
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating the database.");
     }
 }
 
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 // middleware w odpowiedniej kolejności
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.UseAntiforgery();
 
@@ -95,6 +92,18 @@ app.MapPut("/api/courses/{id}", CourseEndpoints.UpdateCourseEndpoint).RequireAut
 app.MapDelete("/api/courses/{id}", CourseEndpoints.DeleteCourseEndpoint).RequireAuthorization();
 app.MapGet("/api/courses", CourseEndpoints.GetCoursesEndpoint).RequireAuthorization();
 app.MapGet("/api/courses/{id}", CourseEndpoints.GetCourseByIdEndpoint).RequireAuthorization();
+
+// Assignment API endpoints
+app.MapPost("/api/courses/{courseId}/assignments", AssignmentEndpoints.CreateAssignmentEndpoint).RequireAuthorization();
+app.MapPut("/api/assignments/{assignmentId}", AssignmentEndpoints.UpdateAssignmentEndpoint).RequireAuthorization();
+app.MapDelete("/api/assignments/{assignmentId}", AssignmentEndpoints.DeleteAssignmentEndpoint).RequireAuthorization();
+app.MapGet("/api/courses/{courseId}/assignments", AssignmentEndpoints.GetCourseAssignmentsEndpoint).RequireAuthorization();
+
+// Enrollment API endpoints
+app.MapPost("/api/enrollments", EnrollmentEndpoints.EnrollInCourseEndpoint).RequireAuthorization();
+app.MapPut("/api/enrollments/{enrollmentId}/approve", EnrollmentEndpoints.ApproveEnrollmentEndpoint).RequireAuthorization();
+app.MapDelete("/api/enrollments/{enrollmentId}/reject", EnrollmentEndpoints.RejectEnrollmentEndpoint).RequireAuthorization();
+app.MapGet("/api/enrollments/course/{courseId}", EnrollmentEndpoints.GetEnrollmentsForCourseEndpoint).RequireAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

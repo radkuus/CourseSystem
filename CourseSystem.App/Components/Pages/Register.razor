@@ -1,0 +1,177 @@
+﻿@page "/register"
+@using CourseSystem.App.Services
+@using System.ComponentModel.DataAnnotations
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Rejestracja - System Kursów</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Rejestracja</h2>
+                    
+                    @if (!string.IsNullOrEmpty(_errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @_errorMessage
+                            <button type="button" class="btn-close" @onclick="() => _errorMessage = string.Empty"></button>
+                        </div>
+                    }
+
+                    @if (_registrationSuccess)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <p>Rejestracja zakończona pomyślnie!</p>
+                            <NavLink href="/login" class="btn btn-primary mt-2">Przejdź do logowania</NavLink>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="_registerModel" OnValidSubmit="HandleRegister" FormName="RegisterForm">
+                            <DataAnnotationsValidator />
+                            
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">Imię</label>
+                                <InputText id="firstName" class="form-control" @bind-Value="_registerModel.FirstName" />
+                                <ValidationMessage For="() => _registerModel.FirstName" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Nazwisko</label>
+                                <InputText id="lastName" class="form-control" @bind-Value="_registerModel.LastName" />
+                                <ValidationMessage For="() => _registerModel.LastName" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <InputText id="email" class="form-control" @bind-Value="_registerModel.Email" 
+                                           placeholder="nazwa@email.com" />
+                                <ValidationMessage For="() => _registerModel.Email" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Hasło</label>
+                                <InputText id="password" type="password" class="form-control" 
+                                           @bind-Value="_registerModel.Password" />
+                                <ValidationMessage For="() => _registerModel.Password" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Potwierdź hasło</label>
+                                <InputText id="confirmPassword" type="password" class="form-control" 
+                                           @bind-Value="_registerModel.ConfirmPassword" />
+                                <ValidationMessage For="() => _registerModel.ConfirmPassword" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Typ konta</label>
+                                <InputSelect id="role" class="form-select" @bind-Value="_registerModel.Role">
+                                    <option value="Student">Student</option>
+                                    <option value="Teacher">Nauczyciel</option>
+                                </InputSelect>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100" disabled="@_isLoading">
+                                @if (_isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Zarejestruj się
+                            </button>
+                        </EditForm>
+
+                        <hr class="my-4" />
+
+                        <p class="text-center mb-0">
+                            Masz już konto? 
+                            <a href="/" class="text-decoration-none">Zaloguj się</a>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private RegisterModel _registerModel { get; set; } = new();
+    
+    private string _errorMessage = string.Empty;
+    private bool _isLoading = false;
+    private bool _registrationSuccess = false;
+    private Timer? _redirectTimer;
+
+
+
+private async Task HandleRegister()
+{
+    _isLoading = true;
+    _errorMessage = string.Empty;
+
+    try
+    {
+        var result = await AuthService.RegisterAsync(
+            _registerModel.Email,
+            _registerModel.Password,
+            _registerModel.FirstName,
+            _registerModel.LastName,
+            _registerModel.Role
+        );
+
+        if (result.Success)
+        {
+            _registrationSuccess = true;
+        }
+        else
+        {
+            _errorMessage = result.ErrorMessage ?? "Błąd podczas rejestracji";
+        }
+    }
+    catch (Exception ex)
+    {
+        _errorMessage = $"Wystąpił błąd: {ex.Message}";
+    }
+    finally
+    {
+        _isLoading = false;
+    }
+}
+
+    public class RegisterModel : IValidatableObject
+    {
+        [Required(ErrorMessage = "Imię jest wymagane")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Nazwisko jest wymagane")]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email jest wymagany")]
+        [EmailAddress(ErrorMessage = "Nieprawidłowy format email")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        [MinLength(6, ErrorMessage = "Hasło musi mieć co najmniej 6 znaków")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Potwierdzenie hasła jest wymagane")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        public string Role { get; set; } = "Student";
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Password != ConfirmPassword)
+            {
+                yield return new ValidationResult(
+                    "Hasła nie są identyczne",
+                    new[] { nameof(ConfirmPassword) }
+                );
+            }
+        }
+    }
+}

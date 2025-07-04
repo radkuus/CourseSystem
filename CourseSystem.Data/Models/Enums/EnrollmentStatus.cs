@@ -9,7 +9,6 @@ namespace CourseSystem.Data.Models.Enums
     public enum EnrollmentStatus
     {
         Pending,
-        Enrolled,
-        Completed
+        Enrolled
     }
 }
