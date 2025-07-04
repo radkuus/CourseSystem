@@ -4,6 +4,7 @@
 @inherits LayoutComponentBase
 @inject AuthenticationService AuthService
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <div class="page">
     <div class="sidebar">
@@ -31,10 +32,13 @@
 
 @code {
     [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+    [CascadingParameter] private AuthorizeViewProvider? AuthProvider { get; set; }
 
-    private void Logout()
+    private async Task Logout()
     {
-        // Przekieruj na stronę wylogowania z forceLoad
-        Navigation.NavigateTo("/logout", forceLoad: true);
+        await AuthService.LogoutAsync();
+
+        // Użyj JavaScript do pełnego przeładowania
+        await JSRuntime.InvokeVoidAsync("eval", "window.location.href = '/'; window.location.reload(true);");
     }
 }

@@ -142,31 +142,19 @@ public static class AuthEndpoints
     {
         try
         {
-            if (httpContext.User?.Identity?.IsAuthenticated == true)
-            {
-                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            httpContext.Session?.Clear();
 
-                // Wyczyść sesję
-                httpContext.Session?.Clear();
+            // Dodaj nagłówki do wymuszenia braku cache
+            httpContext.Response.Headers["Cache-Control"] = "no-cache, no-store";
+            httpContext.Response.Headers["Pragma"] = "no-cache";
 
-                // Wyczyść wszystkie ciasteczka związane z autoryzacją
-                foreach (var cookie in httpContext.Request.Cookies.Keys)
-                {
-                    if (cookie.StartsWith(".AspNetCore") || cookie == "CourseSystemAuth")
-                    {
-                        httpContext.Response.Cookies.Delete(cookie);
-                    }
-                }
-            }
-
-            // Zawsze przekieruj na stronę główną
-            return Results.Redirect("/");
+            // Zawsze przekieruj na stronę logowania
+            return Results.Redirect("/login");
         }
-        catch (Exception ex)
+        catch
         {
-            var logger = httpContext.RequestServices.GetService<ILogger<Program>>();
-            logger?.LogError(ex, "Błąd podczas wylogowania");
-            return Results.Redirect("/");
+            return Results.Redirect("/login");
         }
     }
 

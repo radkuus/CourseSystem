@@ -5,10 +5,13 @@
 @inject NavigationManager Navigation
 
 <CascadingValue Value="@_authState">
-    @ChildContent
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
 </CascadingValue>
 
 @code {
+    // Reszta kodu pozostaje bez zmian...
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private AuthState _authState = new();
@@ -16,12 +19,9 @@
 
     protected override void OnInitialized()
     {
-        // Subskrybuj zmiany lokalizacji
         Navigation.LocationChanged += OnLocationChanged;
-
         CheckAuth();
 
-        // Sprawdzaj autoryzację co 5 sekund (częściej niż 30)
         _timer = new Timer(_ =>
         {
             InvokeAsync(() =>
@@ -34,7 +34,6 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        // Sprawdź autoryzację przy każdej zmianie strony
         CheckAuth();
         InvokeAsync(StateHasChanged);
     }
@@ -44,18 +43,8 @@
         try
         {
             var result = AuthService.CheckAuth();
-
-            // Jeśli stan się zmienił, wymuś odświeżenie
-            if (_authState.IsAuthenticated != result.IsAuthenticated)
-            {
-                _authState.IsAuthenticated = result.IsAuthenticated;
-                _authState.User = result.User;
-            }
-            else
-            {
-                _authState.IsAuthenticated = result.IsAuthenticated;
-                _authState.User = result.User;
-            }
+            _authState.IsAuthenticated = result.IsAuthenticated;
+            _authState.User = result.User;
         }
         catch
         {

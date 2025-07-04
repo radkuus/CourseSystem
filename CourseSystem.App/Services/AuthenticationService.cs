@@ -134,12 +134,16 @@ namespace CourseSystem.App.Services
                 var httpContext = _httpContextAccessor.HttpContext;
                 if (httpContext != null)
                 {
-                    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    // Wykonaj request do endpointu wylogowania
+                    using var client = new HttpClient();
+                    var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
 
-                    // Opcjonalnie: wyczyść sesję
-                    httpContext.Session?.Clear();
+                    // Dodaj ciasteczka do requestu
+                    client.DefaultRequestHeaders.Add("Cookie", httpContext.Request.Headers["Cookie"].ToString());
 
-                    return true;
+                    var response = await client.PostAsync($"{baseUrl}/api/auth/logout", null);
+
+                    return response.IsSuccessStatusCode;
                 }
                 return false;
             }
