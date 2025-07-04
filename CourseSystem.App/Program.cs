@@ -113,6 +113,12 @@ app.MapPut("/api/enrollments/{enrollmentId}/approve", EnrollmentEndpoints.Approv
 app.MapDelete("/api/enrollments/{enrollmentId}/reject", EnrollmentEndpoints.RejectEnrollmentEndpoint).RequireAuthorization();
 app.MapGet("/api/enrollments/course/{courseId}", EnrollmentEndpoints.GetEnrollmentsForCourseEndpoint).RequireAuthorization();
 
+// Submission API endpoints
+app.MapPost("/api/submissions/{assignmentId}", SubmissionEndpoints.CreateSubmissionEndpoint).RequireAuthorization().DisableAntiforgery();
+app.MapGet("/api/teacher/submissions", SubmissionEndpoints.GetTeacherSubmissionsEndpoint).RequireAuthorization();
+app.MapGet("/api/submissions/{submissionId}/download", SubmissionEndpoints.DownloadSubmissionFileEndpoint).RequireAuthorization();
+app.MapPut("/api/submissions/{submissionId}/grade", SubmissionEndpoints.GradeSubmissionEndpoint).RequireAuthorization();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
