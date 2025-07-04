@@ -32,19 +32,9 @@
 @code {
     [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
 
-    private async Task Logout()
+    private void Logout()
     {
-        try
-        {
-            await AuthService.LogoutAsync();
-            // Wymuszamy pełne przeładowanie strony
-            Navigation.NavigateTo("/", forceLoad: true);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Błąd podczas wylogowania: {ex.Message}");
-            // Nawet jeśli wystąpi błąd, przekieruj
-            Navigation.NavigateTo("/", forceLoad: true);
-        }
+        // Przekieruj na stronę wylogowania z forceLoad
+        Navigation.NavigateTo("/logout", forceLoad: true);
     }
 }

@@ -106,22 +106,24 @@
 
             if (result.Success && result.User != null)
             {
-                // Przekieruj do odpowiedniego dashboardu
+                // Użyj forceLoad: true aby wymusić pełne przeładowanie
                 Navigation.NavigateTo(result.User.Role.ToLower() == "teacher"
                     ? "/teacher/dashboard"
-                    : "/student/dashboard", true);
+                    : "/student/dashboard", forceLoad: true);
             }
             else
             {
                 _errorMessage = result.ErrorMessage ?? "Błąd logowania";
+                _isLoading = false;
             }
+        }
+        catch (NavigationException)
+        {
+            // NavigationException jest oczekiwana - ignorujemy
         }
         catch (Exception ex)
         {
             _errorMessage = $"Wystąpił błąd: {ex.Message}";
-        }
-        finally
-        {
             _isLoading = false;
         }
     }

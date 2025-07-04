@@ -1,8 +1,8 @@
 ﻿@using CourseSystem.App.Services
 @using CourseSystem.App.Models
-@using Microsoft.AspNetCore.Components.Authorization
 @implements IDisposable
 @inject AuthenticationService AuthService
+@inject NavigationManager Navigation
 
 <CascadingValue Value="@_authState">
     @ChildContent
@@ -14,11 +14,29 @@
     private AuthState _authState = new();
     private Timer? _timer;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        // Subskrybuj zmiany lokalizacji
+        Navigation.LocationChanged += OnLocationChanged;
+
         CheckAuth();
-        // Sprawdzaj autoryzację co 30 sekund
-        _timer = new Timer(_ => CheckAuth(), null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+
+        // Sprawdzaj autoryzację co 5 sekund (częściej niż 30)
+        _timer = new Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                CheckAuth();
+                StateHasChanged();
+            });
+        }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Sprawdź autoryzację przy każdej zmianie strony
+        CheckAuth();
+        InvokeAsync(StateHasChanged);
     }
 
     private void CheckAuth()
@@ -26,9 +44,18 @@
         try
         {
             var result = AuthService.CheckAuth();
-            _authState.IsAuthenticated = result.IsAuthenticated;
-            _authState.User = result.User;
-            InvokeAsync(StateHasChanged);
+
+            // Jeśli stan się zmienił, wymuś odświeżenie
+            if (_authState.IsAuthenticated != result.IsAuthenticated)
+            {
+                _authState.IsAuthenticated = result.IsAuthenticated;
+                _authState.User = result.User;
+            }
+            else
+            {
+                _authState.IsAuthenticated = result.IsAuthenticated;
+                _authState.User = result.User;
+            }
         }
         catch
         {
@@ -37,8 +64,15 @@
         }
     }
 
+    public void RefreshAuthState()
+    {
+        CheckAuth();
+        InvokeAsync(StateHasChanged);
+    }
+
     public void Dispose()
     {
+        Navigation.LocationChanged -= OnLocationChanged;
         _timer?.Dispose();
     }
 
