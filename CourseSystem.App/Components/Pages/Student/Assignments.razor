@@ -1,0 +1,119 @@
+﻿@page "/student/assignments"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Moje Zadania</PageTitle>
+
+@if (AuthState?.User != null)
+{
+    <div class="container mt-4">
+        <h1>Moje Zadania</h1>
+        <p class="lead">Lista zadań do wykonania</p>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">Do wykonania</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Przesłane</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Ocenione</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Zadanie</th>
+                                        <th>Kurs</th>
+                                        <th>Termin</th>
+                                        <th>Status</th>
+                                        <th>Akcje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong>Projekt semestralny</strong>
+                                            <br />
+                                            <small class="text-muted">Stworzenie aplikacji webowej</small>
+                                        </td>
+                                        <td>Programowanie Obiektowe</td>
+                                        <td>
+                                            <span class="text-danger">2025-01-15</span>
+                                            <br />
+                                            <small class="text-muted">Za 11 dni</small>
+                                        </td>
+                                        <td><span class="badge bg-warning">Oczekuje</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary">Prześlij rozwiązanie</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Zadanie 3 - Normalizacja</strong>
+                                            <br />
+                                            <small class="text-muted">Normalizacja bazy danych</small>
+                                        </td>
+                                        <td>Bazy Danych</td>
+                                        <td>
+                                            <span class="text-warning">2025-01-10</span>
+                                            <br />
+                                            <small class="text-muted">Za 6 dni</small>
+                                        </td>
+                                        <td><span class="badge bg-warning">Oczekuje</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary">Prześlij rozwiązanie</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Zadanie 2 - Zapytania SQL</strong>
+                                            <br />
+                                            <small class="text-muted">Tworzenie zaawansowanych zapytań</small>
+                                        </td>
+                                        <td>Bazy Danych</td>
+                                        <td>
+                                            <span class="text-success">2024-12-20</span>
+                                            <br />
+                                            <small class="text-muted">Przesłano</small>
+                                        </td>
+                                        <td><span class="badge bg-success">Przesłane</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary">Zobacz szczegóły</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Sprawdź czy użytkownik ma odpowiednią rolę
+        if (AuthState?.User?.Role.ToLower() != "student")
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}

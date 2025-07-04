@@ -30,6 +30,12 @@
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Zadania
                     </NavLink>
                 </div>
+                                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/student/browse-courses">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Przegladaj kursy
+                    </NavLink>
+                </div>
+
             }
             else if (AuthState.User?.Role.ToLower() == "teacher")
             {
@@ -50,11 +56,6 @@
                 </div>
             }
 
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/profile">
-                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Profil
-                </NavLink>
-            </div>
         }
     </nav>
 </div>

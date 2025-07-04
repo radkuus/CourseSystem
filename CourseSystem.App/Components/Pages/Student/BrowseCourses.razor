@@ -1,0 +1,94 @@
+﻿@page "/student/browse-courses"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Przeglądaj Kursy</PageTitle>
+
+@if (AuthState?.User != null)
+{
+    <div class="container mt-4">
+        <h1>Przeglądaj dostępne kursy</h1>
+        <p class="lead">Znajdź i zapisz się na nowe kursy</p>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Filtry</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Rok akademicki</label>
+                                <select class="form-select">
+                                    <option>2024/2025</option>
+                                    <option>2023/2024</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Prowadzący</label>
+                                <select class="form-select">
+                                    <option>Wszyscy</option>
+                                    <option>Dr Jan Kowalski</option>
+                                    <option>Dr Anna Nowak</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Szukaj</label>
+                                <input type="text" class="form-control" placeholder="Nazwa kursu...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Algorytmy i Struktury Danych</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Dr Piotr Wiśniewski</h6>
+                                <p class="card-text">Zaawansowany kurs dotyczący algorytmów sortowania, przeszukiwania i struktur danych.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-success">Dostępny</span>
+                                    <span class="text-muted">2024/2025</span>
+                                </div>
+                                <button class="btn btn-primary mt-3">Zapisz się</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Sieci Komputerowe</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Dr Maria Zielińska</h6>
+                                <p class="card-text">Podstawy sieci komputerowych, protokoły TCP/IP, routing i switching.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-success">Dostępny</span>
+                                    <span class="text-muted">2024/2025</span>
+                                </div>
+                                <button class="btn btn-primary mt-3">Zapisz się</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Sprawdź czy użytkownik ma odpowiednią rolę
+        if (AuthState?.User?.Role.ToLower() != "student")
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}

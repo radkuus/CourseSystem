@@ -1,0 +1,65 @@
+﻿@page "/student/courses"
+@using CourseSystem.App.Services
+@using CourseSystem.App.Components.Auth
+@using CourseSystem.App.Models
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Moje Kursy</PageTitle>
+
+@if (AuthState?.User != null)
+{
+    <div class="container mt-4">
+        <h1>Moje Kursy</h1>
+        <p class="lead">Kursy, na które jesteś zapisany</p>
+
+        <div class="row mt-4">
+            <!-- Przykładowa karta kursu -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Programowanie Obiektowe</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Dr Jan Kowalski</h6>
+                        <p class="card-text">Kurs wprowadzający do programowania obiektowego w języku C#.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">Aktywny</span>
+                            <span class="text-muted">2024/2025</span>
+                        </div>
+                        <a href="#" class="btn btn-primary mt-3">Szczegóły kursu</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Bazy Danych</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Dr Anna Nowak</h6>
+                        <p class="card-text">Podstawy projektowania i zarządzania bazami danych SQL.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">Aktywny</span>
+                            <span class="text-muted">2024/2025</span>
+                        </div>
+                        <a href="#" class="btn btn-primary mt-3">Szczegóły kursu</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+@code {
+    [CascadingParameter] private AuthorizeViewProvider.AuthState? AuthState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Sprawdź czy użytkownik ma odpowiednią rolę
+        if (AuthState?.User?.Role.ToLower() != "student")
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+}
